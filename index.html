@@ -37,12 +37,12 @@
             margin-bottom: 20px;
             display: flex;
             justify-content: center;
-            min-height: 100px; /* จองพื้นที่ไว้กันหน้าเว็บกระตุกตอนรูปโหลด */
+            min-height: 100px;
         }
         .logo-container img {
-            max-width: 250px; 
+            max-width: 280px;
             height: auto;
-            filter: drop-shadow(0 0 10px rgba(57, 255, 20, 0.2));
+            filter: drop-shadow(0 0 10px rgba(57, 255, 20, 0.25));
         }
         .main-header {
             color: var(--highlight-green);
@@ -88,27 +88,30 @@
             outline: none;
             transition: border-color 0.3s;
         }
-        input:focus {
-            border-color: #555;
-        }
-        button {
+        input:focus { border-color: #555; }
+
+        /* ปรับปุ่มแยกให้เด่นชัดขึ้น (Solid Background) */
+        .btn-calc {
             width: 100%;
-            padding: 20px;
-            background-color: var(--highlight-green);
+            padding: 14px;
+            margin-top: 12px;
             border: none;
-            color: #000;
-            border-radius: 18px;
-            font-size: 1.3rem;
-            font-weight: 800;
+            border-radius: 12px;
             cursor: pointer;
-            margin-top: 30px;
-            box-shadow: 0 10px 20px rgba(57, 255, 20, 0.2);
+            font-weight: 800;
+            font-size: 1rem;
+            color: #000;
             transition: all 0.2s;
+            text-transform: uppercase;
         }
-        button:active { transform: scale(0.97); }
+        .btn-kh { background-color: var(--highlight-green); box-shadow: 0 4px 15px rgba(57, 255, 20, 0.2); }
+        .btn-ca { background-color: var(--highlight-blue); box-shadow: 0 4px 15px rgba(0, 229, 255, 0.2); }
+        .btn-mg { background-color: var(--highlight-purple); box-shadow: 0 4px 15px rgba(191, 0, 255, 0.2); }
+        
+        .btn-calc:active { transform: scale(0.97); opacity: 0.8; }
         
         .result-box {
-            margin-top: 15px;
+            margin-top: 12px;
             padding: 20px;
             background-color: #1a1a1a;
             border-radius: 18px;
@@ -145,20 +148,21 @@
 
 <div class="container">
     <div class="logo-container">
-        <img src="https://drive.google.com/thumbnail?id=1_g6kFzfSdajUYqvW_4iJuRZ_mCpl0-BS&sz=w1000" alt="Coral Thing Logo">
+        <img src="https://drive.google.com/thumbnail?id=14ba5sILQjLWEWsSlzkSRE_ULlKT85Sbu&sz=w1000" alt="Coral Thing Logo">
     </div>
 
     <div class="main-header">Dosing Calculator</div>
     
     <div class="input-group">
         <label>ปริมาตรน้ำรวมในระบบ (ลิตร)</label>
-        <input type="number" id="volume" value="261">
+        <input type="number" id="volume" placeholder="กรอกปริมาตรน้ำ">
     </div>
 
     <div class="section-title kh-title">Alkalinity (KH)</div>
     <div class="input-group">
         <label>ต้องการเพิ่ม KH (dKH)</label>
-        <input type="number" id="kh_target" value="0.5" step="0.01">
+        <input type="number" id="kh_target" placeholder="0" step="0.01">
+        <button class="btn-calc btn-kh" onclick="calcKH()">คำนวณ KH</button>
     </div>
     <div class="result-box kh-res">
         <div class="result-label">ปริมาณโดส KH</div>
@@ -169,7 +173,8 @@
     <div class="section-title ca-title">Calcium (Ca)</div>
     <div class="input-group">
         <label>ต้องการเพิ่ม Calcium (ppm)</label>
-        <input type="number" id="ca_target" value="10" step="1">
+        <input type="number" id="ca_target" placeholder="0" step="1">
+        <button class="btn-calc btn-ca" onclick="calcCA()">คำนวณ Calcium</button>
     </div>
     <div class="result-box ca-res">
         <div class="result-label">ปริมาณโดส Calcium</div>
@@ -180,7 +185,8 @@
     <div class="section-title mg-title">Magnesium (Mg)</div>
     <div class="input-group">
         <label>ต้องการเพิ่ม Magnesium (ppm)</label>
-        <input type="number" id="mg_target" value="10" step="1">
+        <input type="number" id="mg_target" placeholder="0" step="1">
+        <button class="btn-calc btn-mg" onclick="calcMG()">คำนวณ Magnesium</button>
     </div>
     <div class="result-box mg-res">
         <div class="result-label">ปริมาณโดส Magnesium</div>
@@ -188,54 +194,68 @@
         <div id="mg_split" class="split-info">---</div>
     </div>
 
-    <button onclick="calculateAll()">คำนวณทันที</button>
-
     <div class="footer-note">
         CORAL THING - PROFESSIONAL REEF CARE<br>
-        *คำนวณตามความเข้มข้นลับเฉพาะของแบรนด์ Coral Thing
+        *สูตรเข้มข้นพิเศษ: KH / Ca / Mg เลี้ยงให้มีความสุข
     </div>
 </div>
 
 <script>
-// สูตรลับ (ซ่อนจากหน้าจอ)
-const SECRET_FORMULA = {
-    kh: 60,
-    ca: 166.6,
-    mg: 185
+const CONCENTRATION = {
+    kh: 60,    
+    ca: 166.6, 
+    mg: 185    
 };
 
-function calculateAll() {
-    const vol = parseFloat(document.getElementById('volume').value);
+function getVol() { return parseFloat(document.getElementById('volume').value) || 0; }
+
+function calcKH() {
+    const vol = getVol();
+    const khT = parseFloat(document.getElementById('kh_target').value) || 0;
+    const resEl = document.getElementById('kh_result');
+    const splitEl = document.getElementById('kh_split');
     
-    // KH Calculation
-    const khT = parseFloat(document.getElementById('kh_target').value);
     if (vol > 0 && khT > 0) {
-        const khGrams = khT * vol * 0.03022;
-        const khMl = (khGrams / SECRET_FORMULA.kh) * 1000;
-        document.getElementById('kh_result').innerText = khMl.toFixed(1) + " ml";
-        document.getElementById('kh_split').innerHTML = "แบ่งโดส 12 รอบ: <b>รอบละ " + (khMl/12).toFixed(1) + " ml</b>";
-    }
-
-    // Calcium Calculation
-    const caT = parseFloat(document.getElementById('ca_target').value);
-    if (vol > 0 && caT > 0) {
-        const caGrams = caT * vol * 0.00366; 
-        const caMl = (caGrams / SECRET_FORMULA.ca) * 1000;
-        document.getElementById('ca_result').innerText = caMl.toFixed(1) + " ml";
-        document.getElementById('ca_split').innerHTML = "แบ่งโดส 12 รอบ: <b>รอบละ " + (caMl/12).toFixed(1) + " ml</b>";
-    }
-
-    // Magnesium Calculation
-    const mgT = parseFloat(document.getElementById('mg_target').value);
-    if (vol > 0 && mgT > 0) {
-        const mgGrams = mgT * vol * 0.0084;
-        const mgMl = (mgGrams / SECRET_FORMULA.mg) * 1000;
-        document.getElementById('mg_result').innerText = mgMl.toFixed(1) + " ml";
-        document.getElementById('mg_split').innerHTML = "แบ่งโดส 12 รอบ: <b>รอบละ " + (mgMl/12).toFixed(1) + " ml</b>";
+        const mlResult = ((khT * vol * 0.03022) / CONCENTRATION.kh) * 1000;
+        resEl.innerText = mlResult.toFixed(1) + " ml";
+        splitEl.innerHTML = "แบ่งโดส 12 รอบ: <b>รอบละ " + (mlResult/12).toFixed(1) + " ml</b>";
+    } else {
+        resEl.innerText = "0.0 ml";
+        splitEl.innerText = "---";
     }
 }
 
-window.onload = calculateAll;
+function calcCA() {
+    const vol = getVol();
+    const caT = parseFloat(document.getElementById('ca_target').value) || 0;
+    const resEl = document.getElementById('ca_result');
+    const splitEl = document.getElementById('ca_split');
+
+    if (vol > 0 && caT > 0) {
+        const mlResult = ((caT * vol * 0.00366) / CONCENTRATION.ca) * 1000;
+        resEl.innerText = mlResult.toFixed(1) + " ml";
+        splitEl.innerHTML = "แบ่งโดส 12 รอบ: <b>รอบละ " + (mlResult/12).toFixed(1) + " ml</b>";
+    } else {
+        resEl.innerText = "0.0 ml";
+        splitEl.innerText = "---";
+    }
+}
+
+function calcMG() {
+    const vol = getVol();
+    const mgT = parseFloat(document.getElementById('mg_target').value) || 0;
+    const resEl = document.getElementById('mg_result');
+    const splitEl = document.getElementById('mg_split');
+
+    if (vol > 0 && mgT > 0) {
+        const mlResult = ((mgT * vol * 0.0084) / CONCENTRATION.mg) * 1000;
+        resEl.innerText = mlResult.toFixed(1) + " ml";
+        splitEl.innerHTML = "แบ่งโดส 12 รอบ: <b>รอบละ " + (mlResult/12).toFixed(1) + " ml</b>";
+    } else {
+        resEl.innerText = "0.0 ml";
+        splitEl.innerText = "---";
+    }
+}
 </script>
 
 </body>
