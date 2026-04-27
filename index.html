@@ -11,6 +11,7 @@
             --highlight-green: #39ff14;
             --highlight-blue: #00e5ff;
             --highlight-purple: #bf00ff;
+            --shopee-orange: #ee4d2d;
             --text-gray: #b0b0b0;
             --input-bg: #222222;
         }
@@ -43,6 +44,15 @@
             max-width: 280px;
             height: auto;
             filter: drop-shadow(0 0 10px rgba(57, 255, 20, 0.25));
+        }
+        .visitor-counter {
+            background: #000;
+            display: inline-block;
+            padding: 5px 15px;
+            border-radius: 20px;
+            margin-bottom: 20px;
+            font-size: 0.75rem;
+            border: 1px solid #333;
         }
         .main-header {
             color: var(--highlight-green);
@@ -134,12 +144,35 @@
             border-radius: 10px;
             margin-top: 10px;
         }
+
+        /* ปุ่ม Shopee */
+        .shopee-link {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background-color: var(--shopee-orange);
+            color: white;
+            text-decoration: none;
+            margin-top: 30px;
+            padding: 15px;
+            border-radius: 15px;
+            font-weight: bold;
+            font-size: 1.1rem;
+            box-shadow: 0 5px 15px rgba(238, 77, 45, 0.3);
+            transition: transform 0.2s;
+        }
+        .shopee-link:active { transform: scale(0.95); }
+        .shopee-link svg { margin-right: 10px; }
+
         .footer-note {
-            font-size: 0.7rem;
-            color: #444;
+            font-size: 0.85rem !important;
+            /* ใช้รหัสสีเขียว Neon ตรงๆ เพื่อไม่ให้มันไปดึงค่าอื่น */
+            color: #39ff14 !important; 
             text-align: center;
-            margin-top: 40px;
+            margin-top: 25px;
             line-height: 1.6;
+            text-shadow: 0 0 10px rgba(57, 255, 20, 0.8);
+            font-weight: bold !important;
         }
     </style>
 </head>
@@ -148,6 +181,10 @@
 <div class="container">
     <div class="logo-container">
         <img src="https://drive.google.com/thumbnail?id=14ba5sILQjLWEWsSlzkSRE_ULlKT85Sbu&sz=w1000" alt="Coral Thing Logo">
+    </div>
+
+    <div class="visitor-counter">
+        VISITORS: <script type="text/javascript" src="https://freevisitorcounts.com/en/home/counter/1283626/t/5"></script>
     </div>
 
     <div class="main-header">Dosing Calculator</div>
@@ -193,16 +230,20 @@
         <div id="mg_split" class="split-info">---</div>
     </div>
 
-    <div class="footer-note">
-        CORAL THING - PROFESSIONAL REEF CARE<br>
-        ห้ามเพิ่มค่าน้ำเกิน KH 1dkh, CA 20mg, MG 50mg ต่อวัน
+    <a href="https://th.shp.ee/rm8QueSX" target="_blank" class="shopee-link">
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="white"><path d="M19 17h2c.6 0 1-.4 1-1v-2c0-.6-.4-1-1-1h-2v4zm-7-7c-1.1 0-2 .9-2 2s.9 2 2 2 2-.9 2-2-.9-2-2-2zm10-4h-4V4c0-1.1-.9-2-2-2h-4c-1.1 0-2 .9-2 2v2H3c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h18c1.1 0 2-.9 2-2V8c0-1.1-.9-2-2-2zM9 4h6v2H9V4zm12 16H3V8h18v12z"/></svg>
+        ไปที่ร้าน Shopee
+    </a>
+
+   <div class="footer-note">
+        <b>CORAL THING - ง่ายกว่า ประหยัดกว่า</b><br>
+        <b>ห้ามเพิ่มค่าน้ำเกิน KH 1dkh, CA 20mg, MG 50mg ต่อวัน</b><br>   
     </div>
 </div>
 
 <script>
-// สัดส่วนกรัมต่อลิตร
 const CONCENTRATION = {
-    kh: 166.67, // 1000g / 6L
+    kh: 166.67, 
     ca: 166.6, 
     mg: 185    
 };
@@ -216,7 +257,6 @@ function calcKH() {
     const splitEl = document.getElementById('kh_split');
     
     if (vol > 0 && khT > 0) {
-        // ใช้ 0.03022 กรัม เพื่อเพิ่ม 1 dKH ในน้ำ 1 ลิตร
         const mlResult = ((khT * vol * 0.03022) / CONCENTRATION.kh) * 1000;
         resEl.innerText = mlResult.toFixed(1) + " ml";
         splitEl.innerHTML = "แบ่งโดส 12 รอบ: <b>รอบละ " + (mlResult/12).toFixed(1) + " ml</b>";
