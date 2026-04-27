@@ -90,7 +90,6 @@
         }
         input:focus { border-color: #555; }
 
-        /* ปรับปุ่มแยกให้เด่นชัดขึ้น (Solid Background) */
         .btn-calc {
             width: 100%;
             padding: 14px;
@@ -196,13 +195,14 @@
 
     <div class="footer-note">
         CORAL THING - PROFESSIONAL REEF CARE<br>
-        **ไม่ควรปรับค่าน้ำในตู้เกิน KH 0.5dKH, Ca 20ppm, Mg 50ppm ต่อวัน**
+        ห้ามเพิ่มค่าน้ำเกิน KH 1dkh, CA 20mg, MG 50mg ต่อวัน
     </div>
 </div>
 
 <script>
+// สัดส่วนกรัมต่อลิตร
 const CONCENTRATION = {
-    kh: 60,    
+    kh: 166.67, // 1000g / 6L
     ca: 166.6, 
     mg: 185    
 };
@@ -216,6 +216,7 @@ function calcKH() {
     const splitEl = document.getElementById('kh_split');
     
     if (vol > 0 && khT > 0) {
+        // ใช้ 0.03022 กรัม เพื่อเพิ่ม 1 dKH ในน้ำ 1 ลิตร
         const mlResult = ((khT * vol * 0.03022) / CONCENTRATION.kh) * 1000;
         resEl.innerText = mlResult.toFixed(1) + " ml";
         splitEl.innerHTML = "แบ่งโดส 12 รอบ: <b>รอบละ " + (mlResult/12).toFixed(1) + " ml</b>";
