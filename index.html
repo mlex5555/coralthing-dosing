@@ -4,301 +4,678 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Coral Thing - Dosing Calculator</title>
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Share+Tech+Mono&family=Sarabun:wght@300;400;600&display=swap" rel="stylesheet">
     <style>
         :root {
-            --bg-dark: #0a0a0a;
-            --card-bg: #141414;
-            --highlight-green: #39ff14;
-            --highlight-blue: #00e5ff;
-            --highlight-purple: #bf00ff;
-            --shopee-orange: #ee4d2d;
-            --text-gray: #b0b0b0;
-            --input-bg: #222222;
+            --bg: #020d12;
+            --panel: #040f16;
+            --panel2: #06151f;
+            --green: #39ff14;
+            --cyan: #00e5ff;
+            --purple: #bf00ff;
+            --orange: #ff9f43;
+            --shopee: #ee4d2d;
+            --dim: #4a7a7a;
+            --text: #c8e8e8;
+            --grid: rgba(0,229,255,0.04);
         }
+
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+
         body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background-color: var(--bg-dark);
-            color: #ffffff;
+            font-family: 'Sarabun', sans-serif;
+            background: var(--bg);
+            color: var(--text);
+            min-height: 100vh;
             display: flex;
             justify-content: center;
             padding: 20px;
-            margin: 0;
+            overflow-x: hidden;
         }
-        .container {
-            background: var(--card-bg);
-            padding: 25px;
-            border-radius: 30px;
-            box-shadow: 0 20px 50px rgba(0,0,0,0.8);
-            width: 100%;
-            max-width: 450px;
-            border: 1px solid #222;
-            text-align: center;
-        }
-        .logo-container {
-            margin-bottom: 20px;
-            display: flex;
-            justify-content: center;
-            min-height: 100px;
-        }
-        .logo-container img {
-            max-width: 280px;
-            height: auto;
-            filter: drop-shadow(0 0 10px rgba(57, 255, 20, 0.25));
-        }
-        .visitor-counter {
-            background: #000;
-            display: inline-block;
-            padding: 5px 15px;
-            border-radius: 20px;
-            margin-bottom: 20px;
-            font-size: 0.75rem;
-            border: 1px solid #333;
-        }
-        .main-header {
-            color: var(--highlight-green);
-            margin-bottom: 30px;
-            font-size: 1.1rem;
-            text-transform: uppercase;
-            letter-spacing: 4px;
-            font-weight: bold;
-            opacity: 0.9;
-        }
-        .section-title {
-            font-size: 1.1rem;
-            margin-top: 25px;
-            margin-bottom: 15px;
-            padding-left: 12px;
-            border-left: 4px solid;
-            text-align: left;
-            font-weight: bold;
-        }
-        .kh-title { border-color: var(--highlight-green); color: var(--highlight-green); }
-        .ca-title { border-color: var(--highlight-blue); color: var(--highlight-blue); }
-        .mg-title { border-color: var(--highlight-purple); color: var(--highlight-purple); }
 
-        .input-group {
-            margin-bottom: 15px;
-            text-align: left;
+        /* Animated grid background */
+        body::before {
+            content: '';
+            position: fixed;
+            inset: 0;
+            background-image:
+                linear-gradient(var(--grid) 1px, transparent 1px),
+                linear-gradient(90deg, var(--grid) 1px, transparent 1px);
+            background-size: 40px 40px;
+            pointer-events: none;
+            z-index: 0;
+            animation: gridPan 20s linear infinite;
         }
+
+        @keyframes gridPan {
+            0% { background-position: 0 0; }
+            100% { background-position: 40px 40px; }
+        }
+
+        body::after {
+            content: '';
+            position: fixed;
+            inset: 0;
+            background: radial-gradient(ellipse at 50% 0%, rgba(0,229,255,0.06) 0%, transparent 60%),
+                        radial-gradient(ellipse at 80% 100%, rgba(57,255,20,0.04) 0%, transparent 50%);
+            pointer-events: none;
+            z-index: 0;
+        }
+
+        .container {
+            position: relative;
+            z-index: 1;
+            width: 100%;
+            max-width: 480px;
+            padding: 0 0 40px;
+        }
+
+        /* ── HEADER ── */
+        .hud-header {
+            position: relative;
+            text-align: center;
+            padding: 30px 20px 0;
+            margin-bottom: 10px;
+        }
+
+        .logo-wrap {
+            position: relative;
+            display: inline-block;
+            margin-bottom: 12px;
+        }
+
+        .logo-wrap img {
+            max-width: 240px;
+            height: auto;
+            filter: drop-shadow(0 0 18px rgba(57,255,20,0.5)) drop-shadow(0 0 40px rgba(57,255,20,0.2));
+            animation: logoPulse 3s ease-in-out infinite;
+        }
+
+        @keyframes logoPulse {
+            0%,100% { filter: drop-shadow(0 0 18px rgba(57,255,20,0.5)) drop-shadow(0 0 40px rgba(57,255,20,0.2)); }
+            50% { filter: drop-shadow(0 0 28px rgba(57,255,20,0.8)) drop-shadow(0 0 60px rgba(57,255,20,0.35)); }
+        }
+
+        .scan-line {
+            position: absolute;
+            top: 0; left: 0; right: 0;
+            height: 2px;
+            background: linear-gradient(90deg, transparent, rgba(57,255,20,0.8), transparent);
+            animation: scanDown 2.5s ease-in-out infinite;
+            pointer-events: none;
+        }
+        @keyframes scanDown {
+            0% { top: 0; opacity: 0; }
+            10% { opacity: 1; }
+            90% { opacity: 1; }
+            100% { top: 100%; opacity: 0; }
+        }
+
+        .sys-title {
+            font-family: 'Orbitron', sans-serif;
+            font-size: 0.6rem;
+            font-weight: 700;
+            letter-spacing: 6px;
+            color: var(--cyan);
+            text-transform: uppercase;
+            opacity: 0.7;
+            margin-bottom: 4px;
+        }
+
+        .main-title {
+            font-family: 'Orbitron', sans-serif;
+            font-size: 1rem;
+            font-weight: 900;
+            letter-spacing: 8px;
+            color: var(--green);
+            text-transform: uppercase;
+            text-shadow: 0 0 20px rgba(57,255,20,0.7);
+            animation: flicker 6s step-end infinite;
+        }
+
+        @keyframes flicker {
+            0%,95%,100% { opacity: 1; }
+            96% { opacity: 0.4; }
+            97% { opacity: 1; }
+            98% { opacity: 0.6; }
+            99% { opacity: 1; }
+        }
+
+        .visitor-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            margin: 14px auto 0;
+            background: rgba(57,255,20,0.06);
+            border: 1px solid rgba(57,255,20,0.25);
+            border-radius: 4px;
+            padding: 5px 14px;
+            font-family: 'Share Tech Mono', monospace;
+            font-size: 0.7rem;
+            color: var(--green);
+            text-shadow: 0 0 8px rgba(57,255,20,0.6);
+        }
+
+        /* force counter elements to be visible */
+        .visitor-badge * {
+            color: var(--green) !important;
+            font-family: 'Share Tech Mono', monospace !important;
+            font-size: 0.7rem !important;
+            background: transparent !important;
+            border: none !important;
+            text-shadow: 0 0 8px rgba(57,255,20,0.6) !important;
+            vertical-align: middle !important;
+        }
+
+        .dot-live {
+            width: 6px; height: 6px;
+            border-radius: 50%;
+            background: var(--green);
+            box-shadow: 0 0 6px var(--green);
+            animation: blink 1s step-end infinite;
+        }
+        @keyframes blink { 0%,100%{opacity:1;} 50%{opacity:0;} }
+
+        /* ── VOLUME INPUT (top level) ── */
+        .vol-panel {
+            margin: 20px 12px 0;
+            background: var(--panel);
+            border: 1px solid rgba(0,229,255,0.2);
+            border-radius: 8px;
+            padding: 16px 18px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .vol-panel::before {
+            content: 'SYSTEM INPUT';
+            font-family: 'Orbitron', monospace;
+            font-size: 0.5rem;
+            letter-spacing: 4px;
+            color: var(--cyan);
+            opacity: 0.5;
+            position: absolute;
+            top: 8px; right: 14px;
+        }
+
+        .vol-panel::after {
+            content: '';
+            position: absolute;
+            bottom: 0; left: 0; right: 0;
+            height: 2px;
+            background: linear-gradient(90deg, transparent, var(--cyan), transparent);
+            opacity: 0.4;
+        }
+
+        /* ── SECTION CARDS ── */
+        .section-card {
+            margin: 14px 12px 0;
+            background: var(--panel);
+            border-radius: 10px;
+            overflow: hidden;
+            position: relative;
+            transition: box-shadow 0.3s;
+        }
+
+        .section-card:hover { box-shadow: 0 0 30px rgba(0,0,0,0.5); }
+
+        .section-card::before {
+            content: '';
+            position: absolute;
+            top: 0; left: 0; right: 0;
+            height: 1px;
+        }
+
+        .card-kh::before { background: linear-gradient(90deg, transparent, var(--green), transparent); }
+        .card-ca::before { background: linear-gradient(90deg, transparent, var(--cyan), transparent); }
+        .card-mg::before { background: linear-gradient(90deg, transparent, var(--purple), transparent); }
+        .card-carbon::before { background: linear-gradient(90deg, transparent, var(--orange), transparent); }
+
+        .card-kh { border: 1px solid rgba(57,255,20,0.15); }
+        .card-ca { border: 1px solid rgba(0,229,255,0.15); }
+        .card-mg { border: 1px solid rgba(191,0,255,0.15); }
+        .card-carbon { border: 1px solid rgba(255,159,67,0.15); }
+
+        .card-header {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 14px 18px 10px;
+            border-bottom: 1px solid rgba(255,255,255,0.05);
+        }
+
+        .card-icon {
+            width: 32px; height: 32px;
+            border-radius: 6px;
+            display: flex; align-items: center; justify-content: center;
+            font-family: 'Orbitron', monospace;
+            font-size: 0.65rem;
+            font-weight: 900;
+            flex-shrink: 0;
+        }
+
+        .icon-kh { background: rgba(57,255,20,0.15); color: var(--green); border: 1px solid rgba(57,255,20,0.3); }
+        .icon-ca { background: rgba(0,229,255,0.15); color: var(--cyan); border: 1px solid rgba(0,229,255,0.3); }
+        .icon-mg { background: rgba(191,0,255,0.15); color: var(--purple); border: 1px solid rgba(191,0,255,0.3); }
+        .icon-carbon { background: rgba(255,159,67,0.15); color: var(--orange); border: 1px solid rgba(255,159,67,0.3); }
+
+        .card-title {
+            font-family: 'Orbitron', monospace;
+            font-size: 0.75rem;
+            font-weight: 700;
+            letter-spacing: 3px;
+        }
+
+        .kh-color { color: var(--green); text-shadow: 0 0 10px rgba(57,255,20,0.5); }
+        .ca-color { color: var(--cyan); text-shadow: 0 0 10px rgba(0,229,255,0.5); }
+        .mg-color { color: var(--purple); text-shadow: 0 0 10px rgba(191,0,255,0.5); }
+        .carbon-color { color: var(--orange); text-shadow: 0 0 10px rgba(255,159,67,0.5); }
+
+        .card-body { padding: 14px 18px 18px; }
+
+        /* ── LABELS & INPUTS ── */
         label {
             display: block;
-            margin-bottom: 8px;
-            color: var(--text-gray);
-            font-size: 0.85rem;
-        }
-        input {
-            width: 100%;
-            padding: 14px;
-            background: var(--input-bg);
-            border: 1px solid #333;
-            border-radius: 12px;
-            box-sizing: border-box;
-            font-size: 1.1rem;
-            color: #fff;
-            outline: none;
-            transition: border-color 0.3s;
-        }
-        input:focus { border-color: #555; }
-
-        .btn-calc {
-            width: 100%;
-            padding: 14px;
-            margin-top: 12px;
-            border: none;
-            border-radius: 12px;
-            cursor: pointer;
-            font-weight: 800;
-            font-size: 1rem;
-            color: #000;
-            transition: all 0.2s;
+            font-size: 0.72rem;
+            color: var(--dim);
+            letter-spacing: 1px;
+            margin-bottom: 7px;
+            font-family: 'Share Tech Mono', monospace;
             text-transform: uppercase;
         }
-        .btn-kh { background-color: var(--highlight-green); box-shadow: 0 4px 15px rgba(57, 255, 20, 0.2); }
-        .btn-ca { background-color: var(--highlight-blue); box-shadow: 0 4px 15px rgba(0, 229, 255, 0.2); }
-        .btn-mg { background-color: var(--highlight-purple); box-shadow: 0 4px 15px rgba(191, 0, 255, 0.2); }
-        
-        .btn-calc:active { transform: scale(0.97); opacity: 0.8; }
-        
-        .result-box {
-            margin-top: 12px;
-            padding: 20px;
-            background-color: #1a1a1a;
-            border-radius: 18px;
-            text-align: center;
-        }
-        .kh-res { border-bottom: 3px solid var(--highlight-green); }
-        .ca-res { border-bottom: 3px solid var(--highlight-blue); }
-        .mg-res { border-bottom: 3px solid var(--highlight-purple); }
 
-        .result-label { font-size: 0.85rem; color: var(--text-gray); margin-bottom: 5px; }
-        .result-value { font-size: 2.2rem; font-weight: bold; }
-        .kh-val { color: var(--highlight-green); }
-        .ca-val { color: var(--highlight-blue); }
-        .mg-val { color: var(--highlight-purple); }
+        input[type="number"] {
+            width: 100%;
+            background: rgba(0,0,0,0.5);
+            border: 1px solid #1a3a3a;
+            border-radius: 6px;
+            padding: 12px 14px;
+            color: #fff;
+            font-family: 'Share Tech Mono', monospace;
+            font-size: 1rem;
+            outline: none;
+            transition: border-color 0.3s, box-shadow 0.3s;
+            -moz-appearance: textfield;
+        }
+
+        input[type="number"]::-webkit-outer-spin-button,
+        input[type="number"]::-webkit-inner-spin-button { -webkit-appearance: none; }
+
+        input[type="number"]:focus {
+            border-color: rgba(0,229,255,0.5);
+            box-shadow: 0 0 0 2px rgba(0,229,255,0.1), inset 0 0 20px rgba(0,229,255,0.05);
+        }
+
+        /* ── CALC BUTTONS ── */
+        .btn-calc {
+            width: 100%;
+            padding: 12px;
+            margin-top: 12px;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-family: 'Orbitron', monospace;
+            font-weight: 700;
+            font-size: 0.7rem;
+            letter-spacing: 3px;
+            text-transform: uppercase;
+            color: #000;
+            position: relative;
+            overflow: hidden;
+            transition: all 0.2s;
+        }
+
+        .btn-calc::after {
+            content: '';
+            position: absolute;
+            top: -50%; left: -60%;
+            width: 40%; height: 200%;
+            background: rgba(255,255,255,0.3);
+            transform: skewX(-20deg);
+            transition: left 0.4s ease;
+        }
+
+        .btn-calc:hover::after { left: 120%; }
+        .btn-calc:active { transform: scale(0.97); }
+
+        .btn-kh { background: var(--green); box-shadow: 0 4px 20px rgba(57,255,20,0.3); }
+        .btn-ca { background: var(--cyan); box-shadow: 0 4px 20px rgba(0,229,255,0.3); }
+        .btn-mg { background: var(--purple); box-shadow: 0 4px 20px rgba(191,0,255,0.3); }
+        .btn-carbon { background: var(--orange); box-shadow: 0 4px 20px rgba(255,159,67,0.3); }
+
+        /* ── RESULT BOX ── */
+        .result-box {
+            margin-top: 14px;
+            background: rgba(0,0,0,0.45);
+            border-radius: 8px;
+            padding: 0;
+            overflow: hidden;
+            border: 1px solid rgba(255,255,255,0.06);
+        }
+
+        .result-top {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 12px 16px;
+        }
+
+        .result-label {
+            font-family: 'Share Tech Mono', monospace;
+            font-size: 0.65rem;
+            color: var(--dim);
+            letter-spacing: 2px;
+            text-transform: uppercase;
+        }
+
+        .result-value {
+            font-family: 'Orbitron', monospace;
+            font-size: 1.8rem;
+            font-weight: 900;
+            letter-spacing: 2px;
+            transition: all 0.4s;
+        }
+
+        .kh-val { color: var(--green); text-shadow: 0 0 20px rgba(57,255,20,0.6); }
+        .ca-val { color: var(--cyan); text-shadow: 0 0 20px rgba(0,229,255,0.6); }
+        .mg-val { color: var(--purple); text-shadow: 0 0 20px rgba(191,0,255,0.6); }
+        .carbon-val { color: var(--orange); text-shadow: 0 0 20px rgba(255,159,67,0.6); }
+
+        .result-divider {
+            height: 1px;
+            background: rgba(255,255,255,0.06);
+        }
 
         .split-info {
-            font-size: 0.95rem;
-            color: #ffffff;
-            background: #262626;
-            padding: 10px;
-            border-radius: 10px;
-            margin-top: 10px;
+            padding: 10px 16px;
+            font-family: 'Share Tech Mono', monospace;
+            font-size: 0.75rem;
+            color: #6a9aaa;
+            letter-spacing: 1px;
         }
 
-        /* ปุ่ม Shopee */
+        .split-info b { color: #a8d8e8; }
+
+        /* corner decorations */
+        .corner-tl, .corner-br {
+            position: absolute;
+            width: 12px; height: 12px;
+        }
+        .corner-tl { top: 0; left: 0; border-top: 2px solid; border-left: 2px solid; border-radius: 2px 0 0 0; }
+        .corner-br { bottom: 0; right: 0; border-bottom: 2px solid; border-right: 2px solid; border-radius: 0 0 2px 0; }
+
+        /* ── SHOPEE BUTTON ── */
         .shopee-link {
             display: flex;
             align-items: center;
             justify-content: center;
-            background-color: var(--shopee-orange);
+            gap: 10px;
+            margin: 20px 12px 0;
+            padding: 15px;
+            background: linear-gradient(135deg, #c73b1e, #ee4d2d);
+            border-radius: 8px;
             color: white;
             text-decoration: none;
-            margin-top: 30px;
-            padding: 15px;
-            border-radius: 15px;
-            font-weight: bold;
-            font-size: 1.1rem;
-            box-shadow: 0 5px 15px rgba(238, 77, 45, 0.3);
-            transition: transform 0.2s;
+            font-family: 'Orbitron', monospace;
+            font-weight: 700;
+            font-size: 0.75rem;
+            letter-spacing: 3px;
+            text-transform: uppercase;
+            box-shadow: 0 4px 25px rgba(238,77,45,0.35);
+            transition: all 0.2s;
+            position: relative;
+            overflow: hidden;
         }
-        .shopee-link:active { transform: scale(0.95); }
-        .shopee-link svg { margin-right: 10px; }
 
-        .footer-note {
-            font-size: 0.85rem !important;
-            /* ใช้รหัสสีเขียว Neon ตรงๆ เพื่อไม่ให้มันไปดึงค่าอื่น */
-            color: #39ff14 !important; 
-            text-align: center;
-            margin-top: 25px;
-            line-height: 1.6;
-            text-shadow: 0 0 10px rgba(57, 255, 20, 0.8);
-            font-weight: bold !important;
+        .shopee-link::before {
+            content: '';
+            position: absolute;
+            top: 0; left: 0; right: 0;
+            height: 1px;
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.5), transparent);
         }
+
+        .shopee-link:active { transform: scale(0.97); }
+
+        /* ── FOOTER ── */
+        .footer-note {
+            margin: 20px 12px 0;
+            padding: 14px 18px;
+            background: rgba(57,255,20,0.04);
+            border: 1px solid rgba(57,255,20,0.15);
+            border-radius: 8px;
+            text-align: center;
+            font-family: 'Share Tech Mono', monospace;
+            font-size: 0.72rem;
+            color: var(--green);
+            line-height: 1.9;
+            text-shadow: 0 0 8px rgba(57,255,20,0.5);
+            letter-spacing: 1px;
+        }
+
+        .footer-brand {
+            font-family: 'Orbitron', monospace;
+            font-weight: 900;
+            font-size: 0.8rem;
+            letter-spacing: 4px;
+            display: block;
+            margin-bottom: 6px;
+        }
+
+        /* pulse animation on fresh result */
+        @keyframes resultPop {
+            0% { transform: scale(0.95); opacity: 0.5; }
+            60% { transform: scale(1.05); }
+            100% { transform: scale(1); opacity: 1; }
+        }
+        .pop { animation: resultPop 0.35s ease; }
     </style>
 </head>
 <body>
 
 <div class="container">
-    <div class="logo-container">
-        <img src="https://drive.google.com/thumbnail?id=14ba5sILQjLWEWsSlzkSRE_ULlKT85Sbu&sz=w1000" alt="Coral Thing Logo">
+
+    <!-- HEADER -->
+    <div class="hud-header">
+        <div class="logo-wrap">
+            <div class="scan-line"></div>
+            <img src="https://drive.google.com/thumbnail?id=14ba5sILQjLWEWsSlzkSRE_ULlKT85Sbu&sz=w1000" alt="Coral Thing Logo">
+        </div>
+        <div class="sys-title">Marine Reef System</div>
+        <div class="main-title">Dosing Calculator</div>
+        <div class="visitor-badge">
+            <span class="dot-live"></span>
+            ผู้คำนวนแบบมืออาชีพ:
+            <script type="text/javascript" src="https://freevisitorcounts.com/en/home/counter/1283626/t/5"></script>
+        </div>
     </div>
 
-    <div class="visitor-counter" style="color: #39ff14; border-color: #39ff14; text-shadow: 0 0 5px #39ff14;">
-        ผู้คำนวนแบบมืออาชีพ: <script type="text/javascript" src="https://freevisitorcounts.com/en/home/counter/1283626/t/5"></script>
+    <!-- VOLUME -->
+    <div class="vol-panel">
+        <div style="position:relative">
+            <label>ปริมาณน้ำรวมในระบบ (ลิตร)</label>
+            <input type="number" id="volume" placeholder="000.0">
+        </div>
     </div>
 
-    <div class="main-header">Dosing Calculator</div>
-    
-    <div class="input-group">
-        <label>ปริมาณน้ำรวมในระบบ (ลิตร)</label>
-        <input type="number" id="volume" placeholder="กรอกปริมาณน้ำ">
+    <!-- KH CARD -->
+    <div class="section-card card-kh">
+        <div class="card-header">
+            <div class="card-icon icon-kh">KH</div>
+            <div class="card-title kh-color">Alkalinity</div>
+            <span style="margin-left:auto;font-family:'Share Tech Mono';font-size:0.6rem;color:#2a5a2a;">dKH</span>
+        </div>
+        <div class="card-body">
+            <div class="input-group">
+                <label>ต้องการเพิ่ม (dKH)</label>
+                <input type="number" id="kh_target" placeholder="0.00" step="0.01">
+                <button class="btn-calc btn-kh" onclick="calcKH()">▶ คำนวณ KH</button>
+            </div>
+            <div class="result-box">
+                <div class="result-top">
+                    <div class="result-label">Dose Required</div>
+                    <div class="result-value kh-val" id="kh_result">—</div>
+                </div>
+                <div class="result-divider"></div>
+                <div id="kh_split" class="split-info">ระบุค่าเพื่อคำนวณ</div>
+            </div>
+        </div>
     </div>
 
-    <div class="section-title kh-title">Alkalinity (KH)</div>
-    <div class="input-group">
-        <label>ต้องการเพิ่ม KH (dKH)</label>
-        <input type="number" id="kh_target" placeholder="0" step="0.01">
-        <button class="btn-calc btn-kh" onclick="calcKH()">คำนวณ KH</button>
-    </div>
-    <div class="result-box kh-res">
-        <div class="result-label">ปริมาณโดส KH</div>
-        <div class="result-value kh-val" id="kh_result">0.0 ml</div>
-        <div id="kh_split" class="split-info">---</div>
-    </div>
-
-    <div class="section-title ca-title">Calcium (Ca)</div>
-    <div class="input-group">
-        <label>ต้องการเพิ่ม Calcium (ppm)</label>
-        <input type="number" id="ca_target" placeholder="0" step="1">
-        <button class="btn-calc btn-ca" onclick="calcCA()">คำนวณ Calcium</button>
-    </div>
-    <div class="result-box ca-res">
-        <div class="result-label">ปริมาณโดส Calcium</div>
-        <div class="result-value ca-val" id="ca_result">0.0 ml</div>
-        <div id="ca_split" class="split-info">---</div>
-    </div>
-
-    <div class="section-title mg-title">Magnesium (Mg)</div>
-    <div class="input-group">
-        <label>ต้องการเพิ่ม Magnesium (ppm)</label>
-        <input type="number" id="mg_target" placeholder="0" step="1">
-        <button class="btn-calc btn-mg" onclick="calcMG()">คำนวณ Magnesium</button>
-    </div>
-    <div class="result-box mg-res">
-        <div class="result-label">ปริมาณโดส Magnesium</div>
-        <div class="result-value mg-val" id="mg_result">0.0 ml</div>
-        <div id="mg_split" class="split-info">---</div>
+    <!-- CA CARD -->
+    <div class="section-card card-ca">
+        <div class="card-header">
+            <div class="card-icon icon-ca">Ca</div>
+            <div class="card-title ca-color">Calcium</div>
+            <span style="margin-left:auto;font-family:'Share Tech Mono';font-size:0.6rem;color:#0a3a4a;">ppm</span>
+        </div>
+        <div class="card-body">
+            <div class="input-group">
+                <label>ต้องการเพิ่ม (Ca)</label>
+                <input type="number" id="ca_target" placeholder="0" step="1">
+                <button class="btn-calc btn-ca" onclick="calcCA()">▶ คำนวณ Calcium</button>
+            </div>
+            <div class="result-box">
+                <div class="result-top">
+                    <div class="result-label">Dose Required</div>
+                    <div class="result-value ca-val" id="ca_result">—</div>
+                </div>
+                <div class="result-divider"></div>
+                <div id="ca_split" class="split-info">ระบุค่าเพื่อคำนวณ</div>
+            </div>
+        </div>
     </div>
 
+    <!-- MG CARD -->
+    <div class="section-card card-mg">
+        <div class="card-header">
+            <div class="card-icon icon-mg">Mg</div>
+            <div class="card-title mg-color">Magnesium</div>
+            <span style="margin-left:auto;font-family:'Share Tech Mono';font-size:0.6rem;color:#2a0a4a;">ppm</span>
+        </div>
+        <div class="card-body">
+            <div class="input-group">
+                <label>ต้องการเพิ่ม (Mg)</label>
+                <input type="number" id="mg_target" placeholder="0" step="1">
+                <button class="btn-calc btn-mg" onclick="calcMG()">▶ คำนวณ Magnesium</button>
+            </div>
+            <div class="result-box">
+                <div class="result-top">
+                    <div class="result-label">Dose Required</div>
+                    <div class="result-value mg-val" id="mg_result">—</div>
+                </div>
+                <div class="result-divider"></div>
+                <div id="mg_split" class="split-info">ระบุค่าเพื่อคำนวณ</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- CARBON CARD -->
+    <div class="section-card card-carbon">
+        <div class="card-header">
+            <div class="card-icon icon-carbon">NO₃</div>
+            <div class="card-title carbon-color">Carbon Source</div>
+            <span style="margin-left:auto;font-family:'Share Tech Mono';font-size:0.6rem;color:#4a2a0a;">ppm</span>
+        </div>
+        <div class="card-body">
+            <div class="input-group">
+                <label>ค่าไนเตรทปัจจุบัน (NO₃)</label>
+                <input type="number" id="no3_val" placeholder="0.0" step="0.1">
+                <button class="btn-calc btn-carbon" onclick="calcCarbon()">▶ คำนวณ Carbon Source</button>
+            </div>
+            <div class="result-box">
+                <div class="result-top">
+                    <div class="result-label">Dose Required</div>
+                    <div class="result-value carbon-val" id="carbon_result">—</div>
+                </div>
+                <div class="result-divider"></div>
+                <div id="carbon_note" class="split-info">ระบุค่า NO₃ เพื่อคำนวณตามเกณฑ์</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- SHOPEE -->
     <a href="https://th.shp.ee/rm8QueSX" target="_blank" class="shopee-link">
-        <svg width="24" height="24" viewBox="0 0 24 24" fill="white"><path d="M19 17h2c.6 0 1-.4 1-1v-2c0-.6-.4-1-1-1h-2v4zm-7-7c-1.1 0-2 .9-2 2s.9 2 2 2 2-.9 2-2-.9-2-2-2zm10-4h-4V4c0-1.1-.9-2-2-2h-4c-1.1 0-2 .9-2 2v2H3c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h18c1.1 0 2-.9 2-2V8c0-1.1-.9-2-2-2zM9 4h6v2H9V4zm12 16H3V8h18v12z"/></svg>
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="white"><path d="M19 17h2c.6 0 1-.4 1-1v-2c0-.6-.4-1-1-1h-2v4zm-7-7c-1.1 0-2 .9-2 2s.9 2 2 2 2-.9 2-2-.9-2-2-2zm10-4h-4V4c0-1.1-.9-2-2-2h-4c-1.1 0-2 .9-2 2v2H3c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h18c1.1 0 2-.9 2-2V8c0-1.1-.9-2-2-2zM9 4h6v2H9V4zm12 16H3V8h18v12z"/></svg>
         ไปที่ร้าน Shopee
     </a>
 
-   <div class="footer-note">
-        <b>CORAL THING - ง่ายกว่า ประหยัดกว่า</b><br>
-        <b>ห้ามเพิ่มค่าน้ำในตู้เลี้ยงปะการังเกิน</b><br> 
-        <b>(KH>1dkh)(CA>20mg)(MG>50mg) ต่อวัน</b><br>   
+    <!-- FOOTER -->
+    <div class="footer-note">
+        <span class="footer-brand">CORAL THING</span>
+        ง่ายกว่า · ประหยัดกว่า<br>
+        ⚠ ห้ามเพิ่มค่าน้ำในตู้เลี้ยงปะการังเกิน<br>
+        (KH &gt; 1 dkh) · (CA &gt; 20 mg) · (MG &gt; 50 mg) ต่อวัน
     </div>
+
 </div>
 
 <script>
-const CONCENTRATION = {
-    kh: 166.67, 
-    ca: 166.6, 
-    mg: 185    
-};
+const CONCENTRATION = { kh: 166.67, ca: 166.6, mg: 185 };
 
 function getVol() { return parseFloat(document.getElementById('volume').value) || 0; }
 
+function popAnim(el) {
+    el.classList.remove('pop');
+    void el.offsetWidth;
+    el.classList.add('pop');
+}
+
 function calcKH() {
-    const vol = getVol();
-    const khT = parseFloat(document.getElementById('kh_target').value) || 0;
-    const resEl = document.getElementById('kh_result');
-    const splitEl = document.getElementById('kh_split');
-    
+    const vol = getVol(), khT = parseFloat(document.getElementById('kh_target').value) || 0;
+    const resEl = document.getElementById('kh_result'), splitEl = document.getElementById('kh_split');
     if (vol > 0 && khT > 0) {
-        const mlResult = ((khT * vol * 0.03022) / CONCENTRATION.kh) * 1000;
-        resEl.innerText = mlResult.toFixed(1) + " ml";
-        splitEl.innerHTML = "แบ่งโดส 12 รอบ: <b>รอบละ " + (mlResult/12).toFixed(1) + " ml</b>";
+        const ml = ((khT * vol * 0.03022) / CONCENTRATION.kh) * 1000;
+        resEl.innerText = ml.toFixed(1) + " ml";
+        splitEl.innerHTML = "แบ่งโดส 12 รอบ · รอบละ <b>" + (ml/12).toFixed(1) + " ml</b>";
     } else {
-        resEl.innerText = "0.0 ml";
-        splitEl.innerText = "---";
+        resEl.innerText = "—"; splitEl.innerText = "ระบุค่าเพื่อคำนวณ";
     }
+    popAnim(resEl);
 }
 
 function calcCA() {
-    const vol = getVol();
-    const caT = parseFloat(document.getElementById('ca_target').value) || 0;
-    const resEl = document.getElementById('ca_result');
-    const splitEl = document.getElementById('ca_split');
-
+    const vol = getVol(), caT = parseFloat(document.getElementById('ca_target').value) || 0;
+    const resEl = document.getElementById('ca_result'), splitEl = document.getElementById('ca_split');
     if (vol > 0 && caT > 0) {
-        const mlResult = ((caT * vol * 0.00366) / CONCENTRATION.ca) * 1000;
-        resEl.innerText = mlResult.toFixed(1) + " ml";
-        splitEl.innerHTML = "แบ่งโดส 12 รอบ: <b>รอบละ " + (mlResult/12).toFixed(1) + " ml</b>";
+        const ml = ((caT * vol * 0.00366) / CONCENTRATION.ca) * 1000;
+        resEl.innerText = ml.toFixed(1) + " ml";
+        splitEl.innerHTML = "แบ่งโดส 12 รอบ · รอบละ <b>" + (ml/12).toFixed(1) + " ml</b>";
     } else {
-        resEl.innerText = "0.0 ml";
-        splitEl.innerText = "---";
+        resEl.innerText = "—"; splitEl.innerText = "ระบุค่าเพื่อคำนวณ";
     }
+    popAnim(resEl);
 }
 
 function calcMG() {
-    const vol = getVol();
-    const mgT = parseFloat(document.getElementById('mg_target').value) || 0;
-    const resEl = document.getElementById('mg_result');
-    const splitEl = document.getElementById('mg_split');
-
+    const vol = getVol(), mgT = parseFloat(document.getElementById('mg_target').value) || 0;
+    const resEl = document.getElementById('mg_result'), splitEl = document.getElementById('mg_split');
     if (vol > 0 && mgT > 0) {
-        const mlResult = ((mgT * vol * 0.0084) / CONCENTRATION.mg) * 1000;
-        resEl.innerText = mlResult.toFixed(1) + " ml";
-        splitEl.innerHTML = "แบ่งโดส 12 รอบ: <b>รอบละ " + (mlResult/12).toFixed(1) + " ml</b>";
+        const ml = ((mgT * vol * 0.0084) / CONCENTRATION.mg) * 1000;
+        resEl.innerText = ml.toFixed(1) + " ml";
+        splitEl.innerHTML = "แบ่งโดส 12 รอบ · รอบละ <b>" + (ml/12).toFixed(1) + " ml</b>";
     } else {
-        resEl.innerText = "0.0 ml";
-        splitEl.innerText = "---";
+        resEl.innerText = "—"; splitEl.innerText = "ระบุค่าเพื่อคำนวณ";
     }
+    popAnim(resEl);
+}
+
+function calcCarbon() {
+    const vol = getVol(), no3 = parseFloat(document.getElementById('no3_val').value) || 0;
+    const resEl = document.getElementById('carbon_result'), noteEl = document.getElementById('carbon_note');
+    if (vol > 0 && no3 > 0) {
+        let rate = 0, status = "";
+        if (no3 > 10)       { rate = 3; status = "NO₃ &gt; 10 · เกณฑ์ <b>3 ml / 100L</b>"; }
+        else if (no3 >= 2.5){ rate = 2; status = "NO₃ 2.5–10 · เกณฑ์ <b>2 ml / 100L</b>"; }
+        else if (no3 >= 1)  { rate = 1; status = "NO₃ 1–2.5 · เกณฑ์ <b>1 ml / 100L</b>"; }
+        else                { rate = 0; status = "⚠ NO₃ ต่ำกว่า 1 · <b>ไม่แนะนำให้โดส</b>"; }
+        resEl.innerText = ((rate * vol) / 100).toFixed(1) + " ml";
+        noteEl.innerHTML = status;
+    } else {
+        resEl.innerText = "—"; noteEl.innerText = "ระบุค่า NO₃ เพื่อคำนวณตามเกณฑ์";
+    }
+    popAnim(resEl);
 }
 </script>
-
 </body>
 </html>
