@@ -625,7 +625,7 @@ function calcKH() {
     const vol = getVol(), khT = parseFloat(document.getElementById('kh_target').value) || 0;
     const resEl = document.getElementById('kh_result'), splitEl = document.getElementById('kh_split');
     if (vol > 0 && khT > 0) {
-        const ml = ((khT * vol * 0.03022) / CONCENTRATION.kh) * 1000;
+        const ml = (khT * vol) / CONCENTRATION.kh;
         resEl.innerText = ml.toFixed(1) + " ml";
         splitEl.innerHTML = "แบ่งโดส 12 รอบ · รอบละ <b>" + (ml/12).toFixed(1) + " ml</b>";
     } else {
