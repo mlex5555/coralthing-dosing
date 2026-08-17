@@ -14,7 +14,7 @@
             --cyan: #00e5ff;
             --purple: #bf00ff;
             --orange: #ff9f43;
-            --po4: #f41d4e; /* อัปเดตสี PO4 ตามรูปภาพตัวอย่าง */
+            --po4: #f41d4e;
             --shopee: #ee4d2d;
             --dim: #4a7a7a;
             --text: #c8e8e8;
@@ -157,14 +157,10 @@
             text-shadow: 0 0 8px rgba(57,255,20,0.6);
         }
 
-        .visitor-badge * {
-            color: var(--green) !important;
-            font-family: 'Share Tech Mono', monospace !important;
-            font-size: 0.7rem !important;
-            background: transparent !important;
-            border: none !important;
-            text-shadow: 0 0 8px rgba(57,255,20,0.6) !important;
-            vertical-align: middle !important;
+        .visitor-badge img {
+            vertical-align: middle;
+            height: 16px;
+            filter: drop-shadow(0 0 6px rgba(57,255,20,0.6));
         }
 
         .dot-live {
@@ -483,7 +479,7 @@
         <div class="visitor-badge">
             <span class="dot-live"></span>
             ผู้คำนวนแบบมืออาชีพ:
-            <script type="text/javascript" src="https://freevisitorcounts.com/en/home/counter/1283626/t/5"></script>
+            <img src="https://hits.seeyoufarm.com/api/count/incr/badge.svg?url=https%3A%2F%2Fcoralthing-dosing.com&count_bg=%2300000000&title_bg=%2300000000&icon=&icon_color=%2339FF14&title=&edge_flat=false" alt="visitor count" />
         </div>
     </div>
 
@@ -717,5 +713,3 @@ function calcPO4() {
 </script>
 </body>
 </html>
-
-```
