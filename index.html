@@ -171,6 +171,12 @@
             text-align: center;
         }
 
+        .count-number-img {
+            height: 22px;
+            vertical-align: middle;
+            border-radius: 2px;
+        }
+
         .dot-live {
             width: 6px; height: 6px;
             border-radius: 50%;
@@ -487,7 +493,13 @@
         <div class="visitor-badge">
             <span class="dot-live"></span>
             ผู้คำนวนแบบมืออาชีพ: 
-            <span id="visitor-count" class="count-number">...</span>
+            <img
+                src="https://hits.sh/coralthing-dosing-calc.page.svg?style=for-the-badge&label=views&color=9CFF57&labelColor=071a1a"
+                alt="visitor count"
+                class="count-number-img"
+                onerror="this.style.display='none'; document.getElementById('visitor-count-fallback').style.display='inline-block';"
+            >
+            <span id="visitor-count-fallback" class="count-number" style="display:none;">1</span>
         </div>
     </div>
 
@@ -636,25 +648,9 @@
 </div>
 
 <script>
-// ดึงตัวเลขจำนวนผู้เข้าชมจาก hits.sh
-// หมายเหตุ: hits.sh ไม่มี endpoint แบบ .txt รองรับแค่ .svg (badge) กับ / (หน้าสถิติ)
-// เลยต้องดึง .svg มาแล้ว "แกะ" ตัวเลขออกจากไฟล์ SVG เอง (รูปแบบ shields.io: <title>label: 123</title>)
-fetch('https://hits.sh/coralthing-dosing-calc.page.svg?style=flat&label=views&_=' + Date.now(), { cache: 'no-store' })
-    .then(response => response.text())
-    .then(svgText => {
-        const titleMatch = svgText.match(/<title>([^<]*)<\/title>/);
-        if (titleMatch) {
-            const parts = titleMatch[1].split(':');
-            const rawNumber = parts[parts.length - 1].trim().replace(/,/g, '');
-            const num = parseInt(rawNumber, 10);
-            document.getElementById('visitor-count').innerText = isNaN(num) ? '1' : num;
-        } else {
-            document.getElementById('visitor-count').innerText = '1';
-        }
-    })
-    .catch(() => {
-        document.getElementById('visitor-count').innerText = '1';
-    });
+// นับผู้เข้าชม: ใช้ <img> badge จาก hits.sh ตรงๆ (ดูใน HTML ด้านบน)
+// ไม่ใช้ fetch() เพราะ hits.sh บล็อกด้วย CORS policy ไม่ให้ JS อ่านเนื้อหาข้ามโดเมนได้
+// ถ้ารูปโหลดไม่สำเร็จ (เช่นโดน ad-blocker) จะ fallback ไปโชว์เลข 1 แทนผ่าน onerror ที่ผูกไว้ใน HTML
 
 const CONCENTRATION = { kh: 83.33, ca: 166.6, mg: 185 };
 
