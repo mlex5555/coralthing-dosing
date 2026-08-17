@@ -636,12 +636,21 @@
 </div>
 
 <script>
-// ดึงตัวเลขจำนวนผู้เข้าชมแบบข้อความล้วนจาก hits.sh
-// เพิ่ม cache-busting (timestamp + cache:'no-store') กันเบราว์เซอร์แคชค่าเก่าไว้ ทำให้ตัวเลขดูเหมือนไม่ขยับ
-fetch('https://hits.sh/coralthing-dosing-calc.page.txt?_=' + Date.now(), { cache: 'no-store' })
+// ดึงตัวเลขจำนวนผู้เข้าชมจาก hits.sh
+// หมายเหตุ: hits.sh ไม่มี endpoint แบบ .txt รองรับแค่ .svg (badge) กับ / (หน้าสถิติ)
+// เลยต้องดึง .svg มาแล้ว "แกะ" ตัวเลขออกจากไฟล์ SVG เอง (รูปแบบ shields.io: <title>label: 123</title>)
+fetch('https://hits.sh/coralthing-dosing-calc.page.svg?style=flat&label=views&_=' + Date.now(), { cache: 'no-store' })
     .then(response => response.text())
-    .then(count => {
-        document.getElementById('visitor-count').innerText = count.trim();
+    .then(svgText => {
+        const titleMatch = svgText.match(/<title>([^<]*)<\/title>/);
+        if (titleMatch) {
+            const parts = titleMatch[1].split(':');
+            const rawNumber = parts[parts.length - 1].trim().replace(/,/g, '');
+            const num = parseInt(rawNumber, 10);
+            document.getElementById('visitor-count').innerText = isNaN(num) ? '1' : num;
+        } else {
+            document.getElementById('visitor-count').innerText = '1';
+        }
     })
     .catch(() => {
         document.getElementById('visitor-count').innerText = '1';
