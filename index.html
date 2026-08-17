@@ -14,6 +14,7 @@
             --cyan: #00e5ff;
             --purple: #bf00ff;
             --orange: #ff9f43;
+            --po4: #f41d4e; /* อัปเดตสี PO4 ตามรูปภาพตัวอย่าง */
             --shopee: #ee4d2d;
             --dim: #4a7a7a;
             --text: #c8e8e8;
@@ -156,7 +157,6 @@
             text-shadow: 0 0 8px rgba(57,255,20,0.6);
         }
 
-        /* force counter elements to be visible */
         .visitor-badge * {
             color: var(--green) !important;
             font-family: 'Share Tech Mono', monospace !important;
@@ -176,7 +176,7 @@
         }
         @keyframes blink { 0%,100%{opacity:1;} 50%{opacity:0;} }
 
-        /* ── VOLUME INPUT (top level) ── */
+        /* ── VOLUME INPUT ── */
         .vol-panel {
             margin: 20px 12px 0;
             background: var(--panel);
@@ -230,11 +230,13 @@
         .card-ca::before { background: linear-gradient(90deg, transparent, var(--cyan), transparent); }
         .card-mg::before { background: linear-gradient(90deg, transparent, var(--purple), transparent); }
         .card-carbon::before { background: linear-gradient(90deg, transparent, var(--orange), transparent); }
+        .card-po4::before { background: linear-gradient(90deg, transparent, var(--po4), transparent); }
 
         .card-kh { border: 1px solid rgba(57,255,20,0.15); }
         .card-ca { border: 1px solid rgba(0,229,255,0.15); }
         .card-mg { border: 1px solid rgba(191,0,255,0.15); }
         .card-carbon { border: 1px solid rgba(255,159,67,0.15); }
+        .card-po4 { border: 1px solid rgba(244,29,78,0.25); }
 
         .card-header {
             display: flex;
@@ -258,6 +260,7 @@
         .icon-ca { background: rgba(0,229,255,0.15); color: var(--cyan); border: 1px solid rgba(0,229,255,0.3); }
         .icon-mg { background: rgba(191,0,255,0.15); color: var(--purple); border: 1px solid rgba(191,0,255,0.3); }
         .icon-carbon { background: rgba(255,159,67,0.15); color: var(--orange); border: 1px solid rgba(255,159,67,0.3); }
+        .icon-po4 { background: rgba(244,29,78,0.15); color: var(--po4); border: 1px solid rgba(244,29,78,0.3); }
 
         .card-title {
             font-family: 'Orbitron', monospace;
@@ -270,6 +273,7 @@
         .ca-color { color: var(--cyan); text-shadow: 0 0 10px rgba(0,229,255,0.5); }
         .mg-color { color: var(--purple); text-shadow: 0 0 10px rgba(191,0,255,0.5); }
         .carbon-color { color: var(--orange); text-shadow: 0 0 10px rgba(255,159,67,0.5); }
+        .po4-color { color: var(--po4); text-shadow: 0 0 10px rgba(244,29,78,0.5); }
 
         .card-body { padding: 14px 18px 18px; }
 
@@ -342,6 +346,7 @@
         .btn-ca { background: var(--cyan); box-shadow: 0 4px 20px rgba(0,229,255,0.3); }
         .btn-mg { background: var(--purple); box-shadow: 0 4px 20px rgba(191,0,255,0.3); }
         .btn-carbon { background: var(--orange); box-shadow: 0 4px 20px rgba(255,159,67,0.3); }
+        .btn-po4 { background: var(--po4); color: #fff; box-shadow: 0 4px 20px rgba(244,29,78,0.35); }
 
         /* ── RESULT BOX ── */
         .result-box {
@@ -380,6 +385,7 @@
         .ca-val { color: var(--cyan); text-shadow: 0 0 20px rgba(0,229,255,0.6); }
         .mg-val { color: var(--purple); text-shadow: 0 0 20px rgba(191,0,255,0.6); }
         .carbon-val { color: var(--orange); text-shadow: 0 0 20px rgba(255,159,67,0.6); }
+        .po4-val { color: var(--po4); text-shadow: 0 0 20px rgba(244,29,78,0.6); }
 
         .result-divider {
             height: 1px;
@@ -395,14 +401,6 @@
         }
 
         .split-info b { color: #a8d8e8; }
-
-        /* corner decorations */
-        .corner-tl, .corner-br {
-            position: absolute;
-            width: 12px; height: 12px;
-        }
-        .corner-tl { top: 0; left: 0; border-top: 2px solid; border-left: 2px solid; border-radius: 2px 0 0 0; }
-        .corner-br { bottom: 0; right: 0; border-bottom: 2px solid; border-right: 2px solid; border-radius: 0 0 2px 0; }
 
         /* ── SHOPEE BUTTON ── */
         .shopee-link {
@@ -462,7 +460,6 @@
             margin-bottom: 6px;
         }
 
-        /* pulse animation on fresh result */
         @keyframes resultPop {
             0% { transform: scale(0.95); opacity: 0.5; }
             60% { transform: scale(1.05); }
@@ -594,6 +591,30 @@
         </div>
     </div>
 
+    <!-- PO4 CARD -->
+    <div class="section-card card-po4">
+        <div class="card-header">
+            <div class="card-icon icon-po4">PO₄</div>
+            <div class="card-title po4-color">Phosphate</div>
+            <span style="margin-left:auto;font-family:'Share Tech Mono';font-size:0.6rem;color:#5a0a1a;">ppm</span>
+        </div>
+        <div class="card-body">
+            <div class="input-group">
+                <label>ต้องการเพิ่ม (PO₄ ppm)</label>
+                <input type="number" id="po4_target" placeholder="0.00" step="0.01">
+                <button class="btn-calc btn-po4" onclick="calcPO4()">▶ คำนวณ Phosphate</button>
+            </div>
+            <div class="result-box">
+                <div class="result-top">
+                    <div class="result-label">Dose Required</div>
+                    <div class="result-value po4-val" id="po4_result">—</div>
+                </div>
+                <div class="result-divider"></div>
+                <div id="po4_split" class="split-info">ระบุค่าเพื่อคำนวณ</div>
+            </div>
+        </div>
+    </div>
+
     <!-- SHOPEE -->
     <a href="https://th.shp.ee/rm8QueSX" target="_blank" class="shopee-link">
         <svg width="20" height="20" viewBox="0 0 24 24" fill="white"><path d="M19 17h2c.6 0 1-.4 1-1v-2c0-.6-.4-1-1-1h-2v4zm-7-7c-1.1 0-2 .9-2 2s.9 2 2 2 2-.9 2-2-.9-2-2-2zm10-4h-4V4c0-1.1-.9-2-2-2h-4c-1.1 0-2 .9-2 2v2H3c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h18c1.1 0 2-.9 2-2V8c0-1.1-.9-2-2-2zM9 4h6v2H9V4zm12 16H3V8h18v12z"/></svg>
@@ -605,7 +626,7 @@
         <span class="footer-brand">CORAL THING</span>
         ง่ายกว่า · ประหยัดกว่า<br>
         ⚠ ห้ามเพิ่มค่าน้ำในตู้เลี้ยงปะการังเกิน<br>
-        (KH &gt; 1 dkh)-(CA &gt; 20 ppm)-(MG &gt; 50 ppm) ต่อวัน
+        (KH &gt; 1 dkh)-(CA &gt; 20 ppm)-(MG &gt; 50 ppm)-(PO₄ &gt; 0.03 ppm) ต่อวัน
     </div>
 
 </div>
@@ -676,6 +697,25 @@ function calcCarbon() {
     }
     popAnim(resEl);
 }
+
+function calcPO4() {
+    const vol = getVol(), po4T = parseFloat(document.getElementById('po4_target').value) || 0;
+    const resEl = document.getElementById('po4_result'), splitEl = document.getElementById('po4_split');
+    if (vol > 0 && po4T > 0) {
+        const ml = (po4T * vol) / 1.04685;
+        resEl.innerText = ml.toFixed(1) + " ml";
+        let note = "1 ml / 100L ≈ +0.01 ppm";
+        if (po4T > 0.03) {
+            note += "<br><span style='color:#f41d4e;'>⚠ คำเตือน: ไม่ควรเพิ่มเกิน +0.05 ppm ต่อวัน</span>";
+        }
+        splitEl.innerHTML = note;
+    } else {
+        resEl.innerText = "—"; splitEl.innerText = "ระบุค่าเพื่อคำนวณ";
+    }
+    popAnim(resEl);
+}
 </script>
 </body>
 </html>
+
+```
