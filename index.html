@@ -150,17 +150,25 @@
             background: rgba(57,255,20,0.06);
             border: 1px solid rgba(57,255,20,0.25);
             border-radius: 4px;
-            padding: 5px 14px;
+            padding: 5px 10px;
             font-family: 'Share Tech Mono', monospace;
-            font-size: 0.7rem;
+            font-size: 0.75rem;
             color: var(--green);
             text-shadow: 0 0 8px rgba(57,255,20,0.6);
         }
 
-        .visitor-badge img {
-            vertical-align: middle;
-            height: 16px;
-            filter: drop-shadow(0 0 6px rgba(57,255,20,0.6));
+        /* ตัวเลขสีดำ บนกล่องสีเขียวนีออน */
+        .count-number {
+            background-color: var(--green);
+            color: #000000;
+            font-weight: 700;
+            padding: 1px 7px;
+            border-radius: 3px;
+            font-size: 0.8rem;
+            text-shadow: none;
+            display: inline-block;
+            min-width: 18px;
+            text-align: center;
         }
 
         .dot-live {
@@ -478,8 +486,8 @@
         <div class="main-title">Dosing Calculator</div>
         <div class="visitor-badge">
             <span class="dot-live"></span>
-            ผู้คำนวนแบบมืออาชีพ:
-            <img src="https://hits.seeyoufarm.com/api/count/incr/badge.svg?url=https%3A%2F%2Fcoralthing-dosing.com&count_bg=%2300000000&title_bg=%2300000000&icon=&icon_color=%2339FF14&title=&edge_flat=false" alt="visitor count" />
+            ผู้คำนวนแบบมืออาชีพ: 
+            <span id="visitor-count" class="count-number">...</span>
         </div>
     </div>
 
@@ -628,6 +636,16 @@
 </div>
 
 <script>
+// ดึงตัวเลขจำนวนผู้เข้าชมแบบข้อความล้วนจาก hits.sh
+fetch('https://hits.sh/coralthing-dosing-calc.page.txt')
+    .then(response => response.text())
+    .then(count => {
+        document.getElementById('visitor-count').innerText = count.trim();
+    })
+    .catch(() => {
+        document.getElementById('visitor-count').innerText = '1';
+    });
+
 const CONCENTRATION = { kh: 83.33, ca: 166.6, mg: 185 };
 
 function getVol() { return parseFloat(document.getElementById('volume').value) || 0; }
@@ -700,9 +718,9 @@ function calcPO4() {
     if (vol > 0 && po4T > 0) {
         const ml = (po4T * vol) / 1.04685;
         resEl.innerText = ml.toFixed(1) + " ml";
-        let note = "1 ml / 100L ≈ +0.01 ppm";
+        let note = "สูตรผสม 1.5g / 1L (1 ml / 100L ≈ +0.01 ppm)";
         if (po4T > 0.03) {
-            note += "<br><span style='color:#f41d4e;'>⚠ คำเตือน: ไม่ควรเพิ่มเกิน +0.05 ppm ต่อวัน</span>";
+            note += "<br><span style='color:#f41d4e;'>⚠ คำเตือน: ไม่ควรเพิ่มเกิน +0.03 ppm ต่อวัน</span>";
         }
         splitEl.innerHTML = note;
     } else {
