@@ -718,9 +718,9 @@ function calcPO4() {
     if (vol > 0 && po4T > 0) {
         const ml = (po4T * vol) / 1.04685;
         resEl.innerText = ml.toFixed(1) + " ml";
-        let note = "สูตรผสม 1.5g / 1L (1 ml / 100L ≈ +0.01 ppm)";
+        let note = "1 ml / 100L ≈ +0.01 ppm";
         if (po4T > 0.03) {
-            note += "<br><span style='color:#f41d4e;'>⚠ คำเตือน: ไม่ควรเพิ่มเกิน +0.03 ppm ต่อวัน</span>";
+            note += "<br><span style='color:#f41d4e;'>⚠ คำเตือน: ไม่ควรเพิ่มเกิน +0.05 ppm ต่อวัน</span>";
         }
         splitEl.innerHTML = note;
     } else {
